@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Holidays
+namespace TrueTime
 {
     /// <summary>
     /// Class for calculating all Swedish holidays
     /// </summary>
-    public class HolidayCalculator
+    public class DateCalculator
     {
         //All holidays that are valid for Sweden
         List<DateTime> _holidays = new List<DateTime>();
@@ -28,7 +28,7 @@ namespace Holidays
         /// <summary>
         /// Default constructor
         /// </summary>
-        public HolidayCalculator()
+        public DateCalculator()
         {
         }
 
@@ -36,9 +36,32 @@ namespace Holidays
         /// Constructor that takes a year as a parameter, and calculates all Swedish holidays, storing them in the publicly accessible data structure
         /// </summary>
         /// <param name="year">The year for which the date calculations should be performed</param>
-        public HolidayCalculator(int year)
+        public DateCalculator(int year)
         {
             CalculateHolidays(year);
+        }
+
+        /// <summary>
+        /// Given a date, it returns a list of the enclosing Monday(1st element) and Sunday(2nd element)
+        /// </summary>
+        List<DateTime> GetDateRange(DateTime aDayOfTheWeek)
+        {
+            List<DateTime> dateRange = new List<DateTime>();
+            DateTime testDate;
+
+            //find Monday
+            testDate = aDayOfTheWeek.Date;
+            while (testDate.DayOfWeek != DayOfWeek.Monday)
+                testDate = testDate.AddDays(-1);
+            dateRange.Add(testDate);
+
+            //find Sunday
+            testDate = aDayOfTheWeek.Date;
+            while (testDate.DayOfWeek != DayOfWeek.Sunday)
+                testDate = testDate.AddDays(1);
+            dateRange.Add(testDate);
+
+            return dateRange;
         }
 
         /// <summary>
@@ -107,7 +130,15 @@ namespace Holidays
         }
 
         /// <summary>
-        /// Helper function that adds a new clean DateTime object (except for the Date part) to the list of holidays
+        /// Answers true if the supplied date is a holiday, else false
+        /// </summary>
+        public bool IsHoliday(DateTime aDate)
+        {
+            return Holidays.Exists(d => d.Date == aDate.Date);
+        }
+
+        /// <summary>
+        /// Helper function that adds a new clean DateTime object (only Date part is set) to the list of holidays
         /// </summary>
         void AddHoliday(int year, int month, int day)
         {
@@ -116,7 +147,7 @@ namespace Holidays
             _holidays.Add(holiday);
         }
 
-        #region Calculation of non-fixed holidays
+        #region Functions for calculation of non-fixed holidays
         /// <summary>
         /// Calculates the Midsummer day
         /// </summary>
