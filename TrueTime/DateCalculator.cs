@@ -35,7 +35,6 @@ namespace TrueTime
         /// <summary>
         /// Constructor that takes a year as a parameter, and calculates all Swedish holidays, storing them in the publicly accessible data structure
         /// </summary>
-        /// <param name="year">The year for which the date calculations should be performed</param>
         public DateCalculator(int year)
         {
             CalculateHolidays(year);
@@ -65,7 +64,7 @@ namespace TrueTime
         }
 
         /// <summary>
-        /// Calculates all the holidays as a parameter, and stores them in a publicly accessible data structure
+        /// Calculates all the holidays, and stores them in a publicly accessible data structure
         /// </summary>
         /// <param name="year">The year for which the data calculations should be performed</param>
         public void CalculateHolidays(int year)
@@ -130,6 +129,16 @@ namespace TrueTime
         }
 
         /// <summary>
+        /// Returns the number of working hours, given a DateTime
+        /// </summary>
+        /// <param name="aDate"></param>
+        /// <returns></returns>
+        double GetWorkingHours(DateTime aDate)
+        {
+            return IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
+        }
+
+        /// <summary>
         /// Answers true if the supplied date is a holiday, else false
         /// </summary>
         public bool IsHoliday(DateTime aDate)
@@ -137,6 +146,13 @@ namespace TrueTime
             return Holidays.Exists(d => d.Date == aDate.Date);
         }
 
+        /// <summary>
+        /// Answers true if the following day is a holiday, else false
+        /// </summary>
+        public bool IsDayBeforeHoliday(DateTime aDate)
+        {
+            return IsHoliday(aDate.Date.AddDays(1));
+        }
         /// <summary>
         /// Helper function that adds a new clean DateTime object (only Date part is set) to the list of holidays
         /// </summary>
