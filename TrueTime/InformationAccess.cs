@@ -5,6 +5,9 @@ using System.Web;
 
 namespace TrueTime
 {
+    /// <summary>
+    /// Class that acts as an abstraction layer between the storage and the application logic
+    /// </summary>
      public class InformationAccess
     {
         public InformationAccess()
@@ -28,8 +31,18 @@ namespace TrueTime
         {
             return null;
         }
-
-        
+        bool UpdateUser(SystemUser user)
+        {
+            return false;
+        }
+        bool DeleteUser(SystemUser user)
+        {
+            return false;
+        }
+        bool CreateUser(SystemUser user)
+        {
+            return false;
+        }
 
         //TODO: this function should not be here
         /// <summary>

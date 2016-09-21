@@ -10,7 +10,17 @@ namespace TrueTime
     /// </summary>
     public class EntityBase
     {
-        public string PartitionKey { get; set; }
+        public string PartitionKey
+        {
+            get
+            {
+                return "stebratruetime";
+            }
+            set
+            {
+
+            }
+        }
         public string RowKey { get; set; }
         public DateTime Timestamp { get; set; }
     }
