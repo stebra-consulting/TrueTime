@@ -12,5 +12,6 @@ namespace TrueTime
     {
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }
