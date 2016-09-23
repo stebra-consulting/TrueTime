@@ -71,7 +71,23 @@ namespace TrueTime
         {
             _holidays.Clear(); //in case we've been called already
 
-            //1 FIXED DAYS
+            //1 ALL SUNDAYS
+            DateTime tester = new DateTime(year, 1, 1);
+
+            //first week may not start on a Sunday
+            while (tester.DayOfWeek != DayOfWeek.Sunday)
+                tester = tester.AddDays(1);
+            AddHoliday(year, tester.Month, tester.Day);
+
+            //add the remaining Sundays of the year
+            tester = tester.AddDays(7);
+            while (tester.Year == year)
+            {
+                AddHoliday(year, tester.Month, tester.Day);
+                tester = tester.AddDays(7);
+            }
+
+            //2 FIXED DAYS
             AddHoliday(year, 1, 1);   //New Year's Day ("Nyårsdagen")
             AddHoliday(year, 1, 5);   //The Eve of Epiphany ("Trettondagsafton")
             AddHoliday(year, 1, 6);   //Epiphany ("Trettondedag jul")
@@ -82,7 +98,7 @@ namespace TrueTime
             AddHoliday(year, 12, 26); //Boxing Day ("Annandag jul")
             AddHoliday(year, 12, 31); //New Year's Eve ("Nyårsafton")
 
-            //2. NON-FIXED DAYS
+            //3 NON-FIXED DAYS
 
             //Midsummer Day ("Midsommardagen")
             DateTime midsummerDay = CalculateMidsummerDay(year);
@@ -131,8 +147,6 @@ namespace TrueTime
         /// <summary>
         /// Returns the number of working hours, given a DateTime
         /// </summary>
-        /// <param name="aDate"></param>
-        /// <returns></returns>
         double GetWorkingHours(DateTime aDate)
         {
             return IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
@@ -143,7 +157,7 @@ namespace TrueTime
         /// </summary>
         public bool IsHoliday(DateTime aDate)
         {
-            return Holidays.Exists(d => d.Date == aDate.Date);
+            return Holidays.Exists(d => d.Year == aDate.Year && d.Month == aDate.Month && d.Day == aDate.Day);
         }
 
         /// <summary>
@@ -154,13 +168,41 @@ namespace TrueTime
             return IsHoliday(aDate.Date.AddDays(1));
         }
         /// <summary>
+        /// Answers true if the four digit parameter is a leap year else false
+        /// </summary>
+        public bool IsLeapYear(int year)
+        {
+            /*  (from en.wikipedia.org at 2016-09-23)
+                The following pseudocode determines whether a year is a leap year or a common year 
+                in the Gregorian calendar(and in the proleptic Gregorian calendar before 1582).
+                The year variable being tested is the integer representing the number of the year in the Gregorian calendar, 
+                and the tests are arranged to dispatch the most common cases first. 
+                Care should be taken in translating mathematical integer divisibility into specific programming languages.
+
+                if (year is not divisible by 4) then(it is a common year)
+                else if (year is not divisible by 100) then(it is a leap year)
+                else if (year is not divisible by 400) then(it is a common year)
+                else (it is a leap year)
+
+            */
+            if ((year % 4) != 0)
+                return false;
+            else if ((year % 100) != 0)
+                return true;
+            else if ((year % 400) != 0)
+                return false;
+            else
+                return true;
+        }
+        /// <summary>
         /// Helper function that adds a new clean DateTime object (only Date part is set) to the list of holidays
         /// </summary>
         void AddHoliday(int year, int month, int day)
         {
             DateTime holiday = new DateTime(year, month, day);
 
-            _holidays.Add(holiday);
+            if (!_holidays.Exists(d => year == d.Year && month == d.Month && day == d.Day)) //prevent storing multiple identical dates
+                _holidays.Add(holiday);
         }
 
         #region Functions for calculation of non-fixed holidays
