@@ -2,22 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace TrueTime
 {
     public enum ProjectType
     {
         CustomerProject = 1,
-        InternalProject
+        InternalProject = 2
     }
     /// <summary>
     /// Models a project that a consultant can participate in
     /// </summary>
-    public class Project : EntityBase
+    public class Project : TableEntity
     {
-        public string Name { get; set; }
+        /// <summary>
+        /// One of the integer values of the enum ProjectType above
+        /// </summary>
         public int TypeOfProject { get; set; }
-        public bool Locked { get; set; }
+        public bool Hidden { get; set; }
         public bool Deleted { get; set; }
     }
 }

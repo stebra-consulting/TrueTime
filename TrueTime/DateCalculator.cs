@@ -74,7 +74,7 @@ namespace TrueTime
             //1 ALL SUNDAYS
             DateTime tester = new DateTime(year, 1, 1);
 
-            //first week may not start on a Sunday
+            //first day of the week may not start on a Sunday
             while (tester.DayOfWeek != DayOfWeek.Sunday)
                 tester = tester.AddDays(1);
             AddHoliday(year, tester.Month, tester.Day);

@@ -6,14 +6,10 @@ using System.Web.Mvc;
 
 namespace TrueTime.Controllers
 {
-    public class HomeController : Controller
+    public class LoginController : Controller
     {
+        // GET: Login
         public ActionResult Index()
-        {
-            return View();
-        }
-
-        public ActionResult About()
         {
             return View();
         }

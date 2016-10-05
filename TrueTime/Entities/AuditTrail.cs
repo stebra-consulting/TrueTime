@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace TrueTime
 {
@@ -16,9 +19,9 @@ namespace TrueTime
     /// <summary>
     /// Models the audit trail of the system
     /// </summary>
-    public class AuditTrail : EntityBase
+    public class AuditTrail : TableEntity
     {
-        public SystemUser ProjectUser { get; set; }
+        public AzureUser ProjectUser { get; set; }
         public AuditActivity Activity { get; set; }
         public string Data1 { get; set; }
         public string Data2 { get; set; }

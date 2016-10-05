@@ -41,7 +41,7 @@ namespace TrueTime
         /// First element is the number of hours spent on external customer projects,
         /// second element is the number of hours spent on internal projects
         /// </returns>
-        List<double> GetTime(Project aProject, SystemUser aConsultant, int aYear)
+        List<double> GetTime(Project aProject, AzureUser aConsultant, int aYear)
         {
             return null;
         }
@@ -52,7 +52,7 @@ namespace TrueTime
         /// First element is the number of hours spent on external customer projects,
         /// second element is the number of hours spent on internal projects
         /// </returns>
-        List<double> GetTime(Project aProject, SystemUser aConsultant, int aYear, int aMonth)
+        List<double> GetTime(Project aProject, AzureUser aConsultant, int aYear, int aMonth)
         {
             return null;
         }
@@ -63,7 +63,7 @@ namespace TrueTime
         /// First element is the number of hours spent on external customer projects,
         /// second element is the number of hours spent on internal projects
         /// </returns>
-        List<double> GetTime(Project aProject, SystemUser aConsultant, int aYear, int aMonth, DateTime aDateInAWeek)
+        List<double> GetTime(Project aProject, AzureUser aConsultant, int aYear, int aMonth, DateTime aDateInAWeek)
         {
             return null;
         }
