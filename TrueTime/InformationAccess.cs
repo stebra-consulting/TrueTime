@@ -15,7 +15,7 @@ namespace TrueTime
      public class InformationAccess
     {
         CloudStorageAccount _storageAccount = null;
-        const string _projectTableName = "Project";
+        const string _projectTableName = "Projects";
         const string _projectPartitionKey = "project";
         const string _userTableName = "Users";
         const string _userPartitionKey = "user";
@@ -72,14 +72,14 @@ namespace TrueTime
             }
         }
 
-        List<Project> GetAllProjects(bool includeHidden = false)
+        List<AzureProject> GetAllProjects(bool includeHidden = false)
         {
             try
             {
                 CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
                 CloudTable table = tableClient.GetTableReference(_projectTableName);
-                var query = table.CreateQuery<Project>();
-                var res = table.ExecuteQuery(query);
+                var query = table.CreateQuery<AzureProject>();
+                var res = table.ExecuteQuery(query).Where(r => (includeHidden == true) || (r.Hidden == false));
                 return res.ToList();
             }
             catch (Exception)
@@ -90,14 +90,13 @@ namespace TrueTime
         /// <summary>
         /// Retrieves a project by its name and returns its entity or null upon error
         /// </summary>
-        public Project GetProject(string projectName)
+        public AzureProject GetProject(string projectName)
         {
             try
             {
                 CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
                 CloudTable table = tableClient.GetTableReference(_projectTableName);
-                var query = table.CreateQuery<Project>()/*.Where(
-                                p => p.PartitionKey == _projectPartitionKey && p.Name == projectName)*/;
+                var query = table.CreateQuery<AzureProject>();
                 var res = table.ExecuteQuery(query).Where(
                                 p => p.PartitionKey == _projectPartitionKey && p.RowKey == projectName);
                 return res.First();
@@ -113,10 +112,11 @@ namespace TrueTime
         /// </summary>
         /// <param name="systemUser">a pre-filled object of data</param>
         /// <returns>true if the operation was successful, else false</returns>
-        public async Task<bool> InsertUpdateProject(Project project)
+        public async Task<bool> InsertUpdateProject(AzureProject project)
         {
             try
             {
+                project.PartitionKey = _projectPartitionKey;
                 // Create the table handle
                 CloudTable table = await CreateTableAsync(_projectTableName);
                 // Create the InsertOrReplace TableOperation
@@ -157,9 +157,21 @@ namespace TrueTime
                 return null;
             }
         }
-        AzureUser GetUser(string name)
+        public AzureUser GetUser(string name)
         {
-            return null;
+            try
+            {
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userTableName);
+                var query = table.CreateQuery<AzureUser>();
+                var res = table.ExecuteQuery(query).Where(
+                    u => u.PartitionKey == _userPartitionKey && u.RowKey == name);
+                return res.FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /// <summary>

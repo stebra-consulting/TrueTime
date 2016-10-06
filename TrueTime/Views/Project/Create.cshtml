@@ -1,0 +1,51 @@
+﻿@model TrueTime.Models.Project
+
+@{
+    ViewBag.Title = "Create project";
+}
+
+<h2>Create project</h2>
+
+@using (Html.BeginForm("Create", "Project"))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>User</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.TypeOfProject, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.RadioButtonFor(model => model.TypeOfProject, 1, new { id = "rbInternal" })
+                @Html.Label("rbInternal", "Internal")<br />
+                @Html.RadioButtonFor(model => model.TypeOfProject, 2, new { id = "rbExternal" })
+                @Html.Label("rbExternal", "External")
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Hidden, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(model => model.Hidden)
+                @Html.ValidationMessageFor(model => model.Hidden, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create project" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to list", "Index")
+</div>

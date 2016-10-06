@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "LoginResult";
+}
+
+@{ 
+    string msg = string.Empty;
+
+    switch((LoginStatus)Session["LoginStatus"])
+    {
+        case LoginStatus.IllegalLoginType:
+            msg = "Illegal login type";
+            break;
+        case LoginStatus.NotLoggedIn:
+            msg = "not logged in";
+            break;
+        case LoginStatus.LoggedInAsConsultant:
+            msg = "logged in as a consultant";
+            break;
+        case LoginStatus.LoggedInAsAdministrator:
+            msg = "logged in as an administrator";
+            break;
+    }
+}
+
+<h4>You are @msg</h4>
+

@@ -5,6 +5,7 @@ using System.Web;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using TrueTime.Models;
 
 namespace TrueTime
 {

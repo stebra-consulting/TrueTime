@@ -30,7 +30,7 @@ namespace TrueTime.Controllers
 
             aUser.toAzure(au);
             bool ok = await ia.InsertUpdateUser(au);
-            return View("CreateUserResultView");
+            return View("CreateUserResult");
         }
 
         //public ActionResult Create()

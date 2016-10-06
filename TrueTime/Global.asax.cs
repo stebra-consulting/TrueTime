@@ -8,6 +8,14 @@ using System.Web.Routing;
 
 namespace TrueTime
 {
+    public enum LoginStatus
+    {
+        IllegalLoginType = -1,
+        NotLoggedIn = 0,
+        LoggedInAsConsultant = 1,
+        LoggedInAsAdministrator = 2
+    }
+
     public class MvcApplication : System.Web.HttpApplication
     {
         protected void Application_Start()
