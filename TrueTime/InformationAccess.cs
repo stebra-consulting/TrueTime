@@ -211,10 +211,6 @@ namespace TrueTime
         {
             return false;
         }
-        bool CreateUser(AzureUser user)
-        {
-            return false;
-        }
 
         #region TABLE CREATIONS
 
