@@ -26,7 +26,7 @@
             <div class="col-md-10">
                 @Html.RadioButtonFor(model => model.TypeOfProject, 1, new { id = "rbInternal" })
                 @Html.Label("rbInternal", "Internal")<br />
-                @Html.RadioButtonFor(model => model.TypeOfProject, 2, new { id = "rbExternal" })
+                @Html.RadioButtonFor(model => model.TypeOfProject, 2, new { id = "rbExternal", @checked = "checked" })
                 @Html.Label("rbExternal", "External")
             </div>
         </div>
