@@ -96,10 +96,18 @@ namespace TrueTime
             {
                 CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
                 CloudTable table = tableClient.GetTableReference(_projectTableName);
-                var query = table.CreateQuery<AzureProject>();
-                var res = table.ExecuteQuery(query).Where(
+                
+                var query = from entity in table.CreateQuery<AzureProject>()
+                            where entity.PartitionKey == _projectPartitionKey && entity.RowKey == projectName
+                            select entity;
+                return query.First();
+                
+                /*
+                var query = table.CreateQuery<AzureProject>().Where(
                                 p => p.PartitionKey == _projectPartitionKey && p.RowKey == projectName);
+                var res = table.ExecuteQuery(query);
                 return res.First();
+                */
             }
             catch (Exception)
             {
