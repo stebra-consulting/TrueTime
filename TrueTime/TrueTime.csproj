@@ -147,12 +147,13 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="DataCalculator.cs" />
     <Compile Include="Entities\AuditTrail.cs" />
     <Compile Include="Entities\AzureProject.cs" />
     <Compile Include="Entities\AzureUser.cs" />
-    <Compile Include="Entities\UserTime.cs" />
+    <Compile Include="Entities\AzureUserTime.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -209,6 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Report\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

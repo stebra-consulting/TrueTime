@@ -10,6 +10,26 @@ using System.Threading.Tasks;
 namespace TrueTime
 {
     /// <summary>
+    /// Holds summarized information about a consultant's time spent on a requested time period.
+    /// The time period parameters may vary, and are outside of this class.
+    /// </summary>
+    public class ConsultantTime
+    {
+        public string Name { get; set; }
+        public double TimeSpent { get; set; }
+    }
+
+    /// <summary>
+    /// Holds summarized information about time spent on a project.
+    /// Like ConsultantTime, the time period parameters may vary, and are outside of this class.
+    /// </summary>
+    public class ProjectTime
+    {
+        public string Name { get; set; }
+        public double TimeSpent { get; set; }
+    }
+
+    /// <summary>
     /// Class that acts as an abstraction layer between the storage and the application logic
     /// </summary>
      public class InformationAccess
@@ -19,6 +39,8 @@ namespace TrueTime
         const string _projectPartitionKey = "project";
         const string _userTableName = "Users";
         const string _userPartitionKey = "user";
+        const string _userTimesTableName = "UserTimes";
+        const string _userTimesPartitionKey = "usertime";
 
         /// <summary>
         /// Validates the connection string information in web.config and throws an exception if it looks like 
@@ -71,6 +93,10 @@ namespace TrueTime
                 return false;
             }
         }
+
+        ///////////////////////////////////////
+        /// PROJECTS
+        ///////////////////////////////////////
 
         List<AzureProject> GetAllProjects(bool includeHidden = false)
         {
@@ -150,6 +176,11 @@ namespace TrueTime
             await table.   ExecuteAsync(deleteOperation);
             */
         }
+
+        ///////////////////////////////////////
+        /// USERS
+        ///////////////////////////////////////
+
         public List<AzureUser> GetAllUsers(UserType typeOfUser, bool includeDeleted = false)
         {
             try
@@ -204,12 +235,263 @@ namespace TrueTime
             }
             catch (Exception)
             {
-                throw;
+                return false;
             }
         }
         bool DeleteUser(AzureUser user)
         {
             return false;
+        }
+
+        ///////////////////////////////////////
+        /// USERTIMES
+        ///////////////////////////////////////
+
+        /// <summary>
+        /// Inserts or updates a UserTime into the table UserTimes
+        /// </summary>
+        /// <param name="updatingUser">The user filling in the time report, usually the consultant himself,
+        ///                            but may be the adminstrator too
+        /// </param>
+        /// <param name="userTime">a pre-filled object of data</param>
+        /// <returns>true if the operation was successful, else false</returns>
+        public async Task<bool> InsertUpdateUserTime(string updatingUser, AzureUserTime userTime)
+        {
+            try
+            {
+                userTime.PartitionKey = _userTimesPartitionKey;
+                // Create the table handle
+                CloudTable table = await CreateTableAsync(_userTimesTableName);
+                // Create the InsertOrReplace TableOperation
+                TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(userTime);
+                // Execute the operation.
+                TableResult result = await table.ExecuteAsync(insertOrMergeOperation);
+
+                return result.Result != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        ///////////////////////////////////////
+        /// REPORT FUNCTIONS
+        ///////////////////////////////////////
+
+        /// <summary>
+        /// Given a DateTime, for which we only use the Year and Month component of, 
+        /// it returns a list of each consultant and his/her summed reported time 
+        /// </summary>
+        public List<ConsultantTime> GetConsultantTimePerMonth(DateTime aMonth)
+        {
+            try
+            {
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userTimesTableName);
+                var query = table.CreateQuery<AzureUserTime>();
+                var q = table.ExecuteQuery(query).Where(
+                    ut => ut.PartitionKey == _userTimesPartitionKey && 
+                    ut.WorkDate.Year == aMonth.Year &&
+                    ut.WorkDate.Month == aMonth.Month);
+
+                List<AzureUserTime> lut = q.ToList();
+                Dictionary<string, double> consultantTimeDict = new Dictionary<string, double>();
+                //transfer list into a dictionary, keyed by the consultant's name, value is the summed hours
+                foreach (AzureUserTime aut in lut)
+                {
+                    double time;
+
+                    if (consultantTimeDict.ContainsKey(aut.UserRowKey))
+                    {
+                        time = aut.TimeSpent + consultantTimeDict[aut.UserRowKey];
+                        consultantTimeDict[aut.UserRowKey] = time;
+                    }
+                    else
+                    {
+                        time = aut.TimeSpent;
+                        consultantTimeDict.Add(aut.UserRowKey, time);
+                    }
+                }
+
+                List<ConsultantTime> res = new List<ConsultantTime>();
+
+                foreach (KeyValuePair<string, double> kvp in consultantTimeDict)
+                {
+                    ConsultantTime ct = new ConsultantTime();
+
+                    ct.Name = kvp.Key;
+                    ct.TimeSpent = kvp.Value;
+                    res.Add(ct);
+                }
+
+                return res;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Given a DateTime, for which we only use the week which the date belongs to, 
+        /// it returns a list of each consultant and his/her summed reported time 
+        /// </summary>
+        public List<ConsultantTime> GetConsultantTimePerWeek(DateTime aWeek)
+        {
+            try
+            {
+                List<DateTime> aWeekRange = new List<DateTime>();
+                DateCalculator dc = new DateCalculator(aWeek.Year);
+
+                aWeekRange = dc.GetWeekRange(aWeek);
+
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userTimesTableName);
+                var query = table.CreateQuery<AzureUserTime>();
+                var q = table.ExecuteQuery(query).Where(
+                    ut => ut.PartitionKey == _userTimesPartitionKey &&
+                    ut.WorkDate.Date >= aWeekRange[0].Date &&
+                    ut.WorkDate.Date <= aWeekRange[1].Date);
+
+                List<AzureUserTime> lut = q.ToList();
+                Dictionary<string, double> consultantTimeDict = new Dictionary<string, double>();
+                //transfer list into a dictionary, keyed by the consultant's name, value is the summed hours
+                foreach (AzureUserTime aut in lut)
+                {
+                    double time;
+
+                    if (consultantTimeDict.ContainsKey(aut.UserRowKey))
+                    {
+                        time = aut.TimeSpent + consultantTimeDict[aut.UserRowKey];
+                        consultantTimeDict[aut.UserRowKey] = time;
+                    }
+                    else
+                    {
+                        time = aut.TimeSpent;
+                        consultantTimeDict.Add(aut.UserRowKey, time);
+                    }
+                }
+
+                List<ConsultantTime> res = new List<ConsultantTime>();
+
+                foreach (KeyValuePair<string, double> kvp in consultantTimeDict)
+                {
+                    ConsultantTime ct = new ConsultantTime();
+
+                    ct.Name = kvp.Key;
+                    ct.TimeSpent = kvp.Value;
+                    res.Add(ct);
+                }
+
+                return res;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public List<ProjectTime> GetProjectTimePerYear(DateTime aYear)
+        {
+            try
+            {
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userTimesTableName);
+                var query = table.CreateQuery<AzureUserTime>();
+                var q = table.ExecuteQuery(query).Where(
+                    ut => ut.PartitionKey == _userTimesPartitionKey &&
+                    ut.WorkDate.Year == aYear.Year);
+                List<AzureUserTime> lut = q.ToList();
+                Dictionary<string, double> projectTimeDict = new Dictionary<string, double>();
+                //transfer list into a dictionary, keyed by the project name, value is the summed hours
+                foreach (AzureUserTime aut in lut)
+                {
+                    double time;
+
+                    if (projectTimeDict.ContainsKey(aut.ProjectRowKey))
+                    {
+                        time = aut.TimeSpent + projectTimeDict[aut.ProjectRowKey];
+                        projectTimeDict[aut.ProjectRowKey] = time;
+                    }
+                    else
+                    {
+                        time = aut.TimeSpent;
+                        projectTimeDict.Add(aut.ProjectRowKey, time);
+                    }
+                }
+
+                List<ProjectTime> res = new List<ProjectTime>();
+
+                foreach (KeyValuePair<string, double> kvp in projectTimeDict)
+                {
+                    ProjectTime ct = new ProjectTime();
+
+                    ct.Name = kvp.Key;
+                    ct.TimeSpent = kvp.Value;
+                    res.Add(ct);
+                }
+
+                return res;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Given a DateTime, for which we only use the Year and Month component of, 
+        /// it returns a list of each project and the summed reported time for the month
+        /// </summary>
+        public List<ProjectTime> GetProjectTimePerMonth(DateTime aMonth)
+        {
+            try
+            {
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userTimesTableName);
+                var query = table.CreateQuery<AzureUserTime>();
+                var q = table.ExecuteQuery(query).Where(
+                    ut => ut.PartitionKey == _userTimesPartitionKey &&
+                    ut.WorkDate.Year == aMonth.Year &&
+                    ut.WorkDate.Month == aMonth.Month);
+
+                List<AzureUserTime> lut = q.ToList();
+                Dictionary<string, double> projectTimeDict = new Dictionary<string, double>();
+                //transfer list into a dictionary, keyed by the project name, value is the summed hours
+                foreach (AzureUserTime aut in lut)
+                {
+                    double time;
+
+                    if (projectTimeDict.ContainsKey(aut.ProjectRowKey))
+                    {
+                        time = aut.TimeSpent + projectTimeDict[aut.ProjectRowKey];
+                        projectTimeDict[aut.ProjectRowKey] = time;
+                    }
+                    else
+                    {
+                        time = aut.TimeSpent;
+                        projectTimeDict.Add(aut.ProjectRowKey, time);
+                    }
+                }
+
+                List<ProjectTime> res = new List<ProjectTime>();
+
+                foreach (KeyValuePair<string, double> kvp in projectTimeDict)
+                {
+                    ProjectTime ct = new ProjectTime();
+
+                    ct.Name = kvp.Key;
+                    ct.TimeSpent = kvp.Value;
+                    res.Add(ct);
+                }
+
+                return res;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         #region TABLE CREATIONS

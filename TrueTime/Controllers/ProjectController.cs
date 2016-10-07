@@ -20,7 +20,7 @@ namespace TrueTime.Controllers
             InformationAccess ia = new InformationAccess();
 
             ia.Initialize();
-
+            
             AzureProject ap = new AzureProject();
 
             aProject.toAzure(ap);

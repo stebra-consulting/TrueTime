@@ -41,7 +41,7 @@ namespace TrueTime
         /// <summary>
         /// Given a date, it returns a list of the enclosing Monday(1st element) and Sunday(2nd element)
         /// </summary>
-        List<DateTime> GetDateRange(DateTime aDayOfTheWeek)
+        public List<DateTime> GetWeekRange(DateTime aDayOfTheWeek)
         {
             List<DateTime> dateRange = new List<DateTime>();
             DateTime testDate;
@@ -61,6 +61,23 @@ namespace TrueTime
             return dateRange;
         }
 
+        /// <summary>
+        /// Given a date, it returns the maximum number of days in that month of that year
+        /// </summary>
+        public int GetMonthRange(DateTime aDayOfTheMonthAndYear)
+        {
+            List<int> dateRange = new List<int>() { 1, 28 };
+            DateTime testDate = new DateTime(aDayOfTheMonthAndYear.Year, 
+                aDayOfTheMonthAndYear.Month, 28);
+
+            int day = testDate.Day;
+            while (testDate.Month == aDayOfTheMonthAndYear.Month)
+            {
+                day = testDate.Day;
+                testDate = testDate.AddDays(1);
+            }
+            return day;
+        }
         /// <summary>
         /// Calculates all the holidays, and stores them in a publicly accessible data structure
         /// </summary>
