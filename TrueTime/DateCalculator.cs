@@ -25,11 +25,9 @@ namespace TrueTime
             }
         }
 
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public DateCalculator()
+        protected DateCalculator()
         {
+
         }
 
         /// <summary>
@@ -149,7 +147,7 @@ namespace TrueTime
         /// </summary>
         double GetWorkingHours(DateTime aDate)
         {
-            return IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
+            return IsHoliday(aDate.Date) ? 0 : IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
         }
 
         /// <summary>
