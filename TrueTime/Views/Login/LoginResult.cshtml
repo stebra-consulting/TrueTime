@@ -6,10 +6,15 @@
 @{ 
     string msg = string.Empty;
 
-    switch((LoginStatus)Session["LoginStatus"])
+    if (Session["LoginStatus"] == null)
+    {
+        Session["LoginStatus"] = LoginStatus.IllegalLoginType;
+    }
+
+    switch ((LoginStatus)Session["LoginStatus"])
     {
         case LoginStatus.IllegalLoginType:
-            msg = "Illegal login type";
+            msg = "having an illegal login type";
             break;
         case LoginStatus.NotLoggedIn:
             msg = "not logged in";

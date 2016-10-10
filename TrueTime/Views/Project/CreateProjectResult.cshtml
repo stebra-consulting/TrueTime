@@ -3,5 +3,30 @@
     ViewBag.Title = "CreateProjectResult";
 }
 
-<h2>CreateProjectResult</h2>
+<h2>Resultat</h2>
+
+@{
+    string msg = string.Empty;
+    LoginStatus loginStatus = (LoginStatus)Session["LoginStatus"];
+    msg = loginStatus == LoginStatus.LoggedInAsAdministrator ? "You are properly logged in" : "Unauthorized access";
+}
+
+<h2>@msg</h2>
+
+@{ 
+    if (loginStatus == LoginStatus.LoggedInAsAdministrator && !(bool)Session["ProjectOK"])
+    {
+        msg = "Project could not be created.";
+    }
+    else
+    {
+        msg = "";
+    }
+}
+
+<br /><br />
+
+<h2>@msg</h2>
+
+
 

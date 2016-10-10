@@ -20,7 +20,7 @@ namespace TrueTime.Controllers
 
             ia.Initialize();
 
-            List<ConsultantTime> ct = ia.GetConsultantTimePerWeek(DateTime.Now);
+            //List<ConsultantTime> ct = ia.GetConsultantTimePerWeek(DateTime.Now);
             return View(); //there is no view yet; just dry-running functionality
         }
     }

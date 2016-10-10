@@ -11,6 +11,12 @@ namespace TrueTime.Controllers
     {
         public ActionResult Create()
         {
+            if (Session["LoginStatus"] == null ||
+                (LoginStatus)Session["LoginStatus"] != LoginStatus.LoggedInAsAdministrator)
+            {
+                Session["LoginStatus"] = LoginStatus.IllegalLoginType;
+                return View("CreateProjectResult");
+            }
             return View();
         }
 
@@ -27,6 +33,7 @@ namespace TrueTime.Controllers
 
             bool bOk = await ia.InsertUpdateProject(ap);
 
+            Session["ProjectOK"] = bOk;
             return View("CreateProjectResult");
         }
     }
