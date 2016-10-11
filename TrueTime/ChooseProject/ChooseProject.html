@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose Project</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<meta charset="utf-8" />
+    <script>
+        jQuery(document).ready(function () {
+            $("#projectSelector").focus();
+            $("#projectSelector").keyup(function () {
+
+                var txt = $("#projectSelector").val();
+                
+                //indexOf returnerar -1 om texten ej hittades
+                $('#dropdownProjects').find('option').each(function (index, element) {
+                    $('#dropdownProjects option').eq(0).prop('selected', true)
+                    if (element.text.indexOf(txt) != -1)
+                    {
+                        $('#dropdownProjects option').eq(index).prop('selected', true);
+                        return false;
+                    }
+                        /*
+                    console.log(index);
+                    console.log(element.value);
+                    console.log(element.text);*/
+                });
+            });
+
+            $("#chooseProject").click(function () {
+                /* get the data of the selected entry from the combo box */
+                var _value = $('#dropdownProjects').val();
+                var _txt = $('#dropdownProjects option:selected').text();
+
+                if (_txt != "") {
+                    var s = "";
+                    /* remove it from the combo box */
+                    $('#dropdownProjects :selected').remove();
+                    /* add it to the list box */
+                    s = "<option value='" + _value + "'>" + _txt + "</option>";
+                    $("#chosenProjects").append(s);
+                }
+            });
+
+            $("#deleteProject").click(function() {
+                var _value = $('#chosenProjects').val();
+                var _txt = $('#chosenProjects option:selected').text();
+                if (_txt != "")
+                {
+                    var s = "";
+
+                    $("#chosenProjects :selected").remove();
+                    /* add it to the list box */
+                    s = "<option value='" + _value + "'>" + _txt + "</option>";
+                    $("#dropdownProjects").append(s);
+                }
+            })
+        });
+    </script>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>
+                <input type="text" id="projectSelector" />
+            </td>
+            <td colspan="2">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <select id="dropdownProjects">
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                    <option value="mercedes">Mercedes</option>
+                    <option value="mercurius">Mercurius2</option>
+                    <option value="audi">Audi</option>
+                </select>
+            </td>
+            <td>
+                <input type="button" id="chooseProject" value="-->" /><br />
+                <input type="button" id="deleteProject" value="<--" />
+            </td>
+            <td>
+                <select id="chosenProjects" size="5">
+                </select>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
