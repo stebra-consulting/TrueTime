@@ -149,8 +149,10 @@
     <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\UserProjectController.cs" />
     <Compile Include="DataCalculator.cs" />
     <Compile Include="Entities\AuditTrail.cs" />
+    <Compile Include="Entities\AzureUserProject.cs" />
     <Compile Include="Entities\AzureProject.cs" />
     <Compile Include="Entities\AzureUser.cs" />
     <Compile Include="Entities\AzureUserTime.cs" />
@@ -162,6 +164,7 @@
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\Project.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -203,12 +206,13 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
     <Content Include="Views\User\Create.cshtml" />
-    <Content Include="Views\User\List.cshtml" />
     <Content Include="Views\User\CreateUserResult.cshtml" />
     <Content Include="Views\Login\LoginResult.cshtml" />
     <Content Include="Views\Login\Login.cshtml" />
     <Content Include="Views\Project\Create.cshtml" />
     <Content Include="Views\Project\CreateProjectResult.cshtml" />
+    <Content Include="Views\Project.cshtml" />
+    <Content Include="Views\UserProject\List.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

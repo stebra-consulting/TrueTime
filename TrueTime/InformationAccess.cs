@@ -6,6 +6,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Threading.Tasks;
+using TrueTime.Models;
 
 namespace TrueTime
 {
@@ -41,6 +42,8 @@ namespace TrueTime
         const string _userPartitionKey = "user";
         const string _userTimesTableName = "UserTimes";
         const string _userTimesPartitionKey = "usertime";
+        const string _userProjectTableName = "UserProjects";
+        const string _userProjectPartitionKey = "userproject";
 
         /// <summary>
         /// Validates the connection string information in web.config and throws an exception if it looks like 
@@ -276,6 +279,32 @@ namespace TrueTime
         }
 
         ///////////////////////////////////////
+        /// USERPROJECTS
+        ///////////////////////////////////////
+
+
+        /// <summary>
+        ///  Returns a list of all projects for the given consultant. If no consultant is specified,
+        ///  all projects for all consultants are returned.
+        /// </summary>
+        public List<AzureUserProject> GetAllProjects(string consultant = "")
+        {
+            try
+            {
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userProjectTableName);
+
+                var query = table.CreateQuery<AzureUserProject>();
+                var res = table.ExecuteQuery(query).Where(s => consultant == string.Empty || s.RowKey == consultant);
+                return res.ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        ///////////////////////////////////////
         /// REPORT FUNCTIONS
         ///////////////////////////////////////
 
@@ -502,7 +531,7 @@ namespace TrueTime
         /// <returns></returns>
         public async Task<bool> CreateTables()
         {
-            CloudTable t1, t2, t3, t4;
+            CloudTable t1, t2, t3, t4, t5;
 
             try
             {
@@ -510,12 +539,13 @@ namespace TrueTime
                 t2 = await CreateTableAsync("Users");
                 t3 = await CreateTableAsync("Projects");
                 t4 = await CreateTableAsync("UserTimes");
+                t5 = await CreateTableAsync("UserProjects");
             }
             catch (Exception)
             {
                 return false;
             }
-            return t1.Exists() && t2.Exists() && t3.Exists() && t4.Exists();
+            return t1.Exists() && t2.Exists() && t3.Exists() && t4.Exists() && t5.Exists();
         }
 
 #if false

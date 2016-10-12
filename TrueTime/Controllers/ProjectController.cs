@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using TrueTime.Models;
 
 namespace TrueTime.Controllers
 {
@@ -21,7 +22,7 @@ namespace TrueTime.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(Models.Project aProject, string returnUrl)
+        public async Task<ActionResult> Create(Project aProject, string returnUrl)
         {
             InformationAccess ia = new InformationAccess();
 
@@ -36,5 +37,6 @@ namespace TrueTime.Controllers
             Session["ProjectOK"] = bOk;
             return View("CreateProjectResult");
         }
+        
     }
 }

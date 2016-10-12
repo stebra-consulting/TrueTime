@@ -6,6 +6,7 @@
 	<meta charset="utf-8" />
     <script>
         jQuery(document).ready(function () {
+            populateProjects();
             $("#projectSelector").focus();
             $("#projectSelector").keyup(function () {
 
@@ -44,17 +45,23 @@
             $("#deleteProject").click(function() {
                 var _value = $('#chosenProjects').val();
                 var _txt = $('#chosenProjects option:selected').text();
+
                 if (_txt != "")
                 {
                     var s = "";
-
+                    /* remove it from the listbox */
                     $("#chosenProjects :selected").remove();
-                    /* add it to the list box */
+                    /* add it to the combobox */
                     s = "<option value='" + _value + "'>" + _txt + "</option>";
                     $("#dropdownProjects").append(s);
                 }
             })
         });
+
+        function populateProjects() {
+
+        }
+
     </script>
 </head>
 <body>
