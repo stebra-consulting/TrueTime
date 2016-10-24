@@ -3,30 +3,42 @@
     ViewBag.Title = "LoginResult";
 }
 
-@{ 
-    string msg = string.Empty;
+<div class="row">
+    @{
+        string msg = string.Empty;
+        string name = string.Empty;
 
-    if (Session["LoginStatus"] == null)
-    {
-        Session["LoginStatus"] = LoginStatus.IllegalLoginType;
+        if (Session["LoginName"] == null)
+        {
+            name = "(unknown)";
+        }
+        else
+        {
+            name = (string)Session["LoginName"];
+        }
+        if (Session["LoginStatus"] == null)
+        {
+            Session["LoginStatus"] = LoginStatus.IllegalLoginType;
+        }
+
+        switch ((LoginStatus)Session["LoginStatus"])
+        {
+            case LoginStatus.IllegalLoginType:
+                msg = "having an illegal login type";
+                break;
+            case LoginStatus.NotLoggedIn:
+                msg = "not logged in";
+                break;
+            case LoginStatus.LoggedInAsConsultant:
+                msg = "logged in as a consultant";
+                break;
+            case LoginStatus.LoggedInAsAdministrator:
+                msg = "logged in as an administrator";
+                break;
+        }
     }
-
-    switch ((LoginStatus)Session["LoginStatus"])
-    {
-        case LoginStatus.IllegalLoginType:
-            msg = "having an illegal login type";
-            break;
-        case LoginStatus.NotLoggedIn:
-            msg = "not logged in";
-            break;
-        case LoginStatus.LoggedInAsConsultant:
-            msg = "logged in as a consultant";
-            break;
-        case LoginStatus.LoggedInAsAdministrator:
-            msg = "logged in as an administrator";
-            break;
-    }
-}
-
-<h4>You are @msg</h4>
+</div>
+<div class="row">
+    <h4>Hello @name, you are @msg</h4>
+</div>
 

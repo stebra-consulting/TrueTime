@@ -101,7 +101,7 @@ namespace TrueTime
         /// PROJECTS
         ///////////////////////////////////////
 
-        List<AzureProject> GetAllProjects(bool includeHidden = false)
+        public List<AzureProject> GetAllProjects(bool includeHidden = false)
         {
             try
             {
@@ -169,7 +169,7 @@ namespace TrueTime
             }            
         }
 
-        bool DeleteProject(string projectName)
+        public bool DeleteProject(string projectName)
         {
             return false;
             /*
@@ -207,7 +207,7 @@ namespace TrueTime
                 CloudTable table = tableClient.GetTableReference(_userTableName);
                 var query = table.CreateQuery<AzureUser>();
                 var res = table.ExecuteQuery(query).Where(
-                    u => u.PartitionKey == _userPartitionKey && u.RowKey == name);
+                    u => u.PartitionKey == _userPartitionKey && u.RowKey.ToLowerInvariant() == name.ToLowerInvariant());
                 return res.FirstOrDefault();
             }
             catch (Exception)
@@ -241,7 +241,7 @@ namespace TrueTime
                 return false;
             }
         }
-        bool DeleteUser(AzureUser user)
+        public bool DeleteUser(AzureUser user)
         {
             return false;
         }
@@ -287,15 +287,24 @@ namespace TrueTime
         ///  Returns a list of all projects for the given consultant. If no consultant is specified,
         ///  all projects for all consultants are returned.
         /// </summary>
-        public List<AzureUserProject> GetAllProjects(string consultant = "")
+        public List<AzureUserProject> GetUserProjects(string consultant = "", string project = "",  bool includeDeleted = false)
         {
+            if (consultant == null)
+                return null;
+            if (project == null)
+                return null;
             try
             {
                 CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
                 CloudTable table = tableClient.GetTableReference(_userProjectTableName);
 
                 var query = table.CreateQuery<AzureUserProject>();
-                var res = table.ExecuteQuery(query).Where(s => consultant == string.Empty || s.RowKey == consultant);
+                var res = table.ExecuteQuery(query).Where(
+                    s => (project == string.Empty ||
+                          s.PartitionKey == project) &&
+                         (consultant == string.Empty ||
+                          s.RowKey == consultant) && 
+                         (includeDeleted || s.Deleted == false));
                 return res.ToList();
             }
             catch (Exception)
@@ -303,6 +312,83 @@ namespace TrueTime
                 return null;
             }
         }
+
+        /// <summary>
+        /// Given a consultant and a project,
+        /// the function deletes a row from UserProjects.
+        /// </summary>
+        /// <returns>true if it went well for all records that were searched, else false</returns>
+        public async Task<bool> DeleteUserProject(string consultant, string project)
+        {
+            if (string.IsNullOrEmpty(consultant))
+                return false;
+            if (string.IsNullOrEmpty(project))
+                return false;
+
+            List<AzureUserProject> userProjects = GetUserProjects(consultant, project, false);
+
+            foreach (AzureUserProject aup in userProjects)
+                aup.Deleted = true;
+            return await InsertUpdateUserProjects(userProjects);
+        }
+
+        /// <summary>
+        /// Deletes a number of user projects, given a list of project names.
+        /// If a single project cannot be deleted, the function fails, and false is returned,
+        /// else true is returned.
+        /// </summary>
+        public async Task<bool> DeleteUserProjects(string consultant, List<string> projectNames)
+        {
+            foreach (string project in projectNames)
+                if (!await DeleteUserProject(consultant, project))
+                    return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Updates the Azure table UserProjects
+        /// </summary>
+        /// <remarks>The only admissible column to update is AzureUserProject.Deleted. If you want
+        /// greater flexibility in updating the columns, you have to delete the row first (purge)</remarks>
+        public async Task<bool> InsertUpdateUserProject(AzureUserProject project)
+        {
+            try
+            {
+                // Create the table handle
+                CloudTable table = await CreateTableAsync(_userProjectTableName);
+                // Create the InsertOrReplace TableOperation
+                TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(project);
+                // Execute the operation.
+                TableResult result = await table.ExecuteAsync(insertOrMergeOperation);
+
+                return result.Result != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Given a list of AzureUserProject objects, it makes the necessary calls to the overloaded
+        /// version of this function, which interacts with Azure
+        /// </summary>
+        /// <param name="projectList"></param>
+        /// <returns>true if the entire list of objects could be updated, else false. 
+        ///          If a single item in the list could not be updated, false is consequently returned.</returns>
+        public async Task<bool> InsertUpdateUserProjects(List<AzureUserProject> projectList)
+        {
+            if (projectList == null)
+                return false;
+
+            foreach(AzureUserProject up in projectList)
+            {
+                if (!await InsertUpdateUserProject(up))
+                    return false;
+            }
+            return true;
+        }
+        
 
         ///////////////////////////////////////
         /// REPORT FUNCTIONS

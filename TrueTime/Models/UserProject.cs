@@ -18,6 +18,7 @@ namespace TrueTime.Models
         {
             PartitionKey = a.PartitionKey;
             RowKey = a.RowKey;
+            Timestamp = a.Timestamp.DateTime;
             Deleted = a.Deleted;
         }
 
@@ -25,6 +26,7 @@ namespace TrueTime.Models
         {
             a.PartitionKey = PartitionKey;
             a.RowKey = RowKey;
+            a.Timestamp = new DateTimeOffset(Timestamp);
             a.Deleted = Deleted;
         }
     }

@@ -34,15 +34,16 @@ namespace TrueTime.Controllers
             AzureUser au = ia.GetUser(model.Username);
 
             Session["LoginStatus"] = (int)LoginStatus.NotLoggedIn;
-            
-            if (au != null && au.RowKey == model.Username && au.Pwd == model.Password)
+            Session["LoginName"] = "";
+
+            if (au != null && au.RowKey.ToLowerInvariant() == model.Username.ToLowerInvariant() && 
+                au.Pwd == model.Password && !au.Deleted)
             {
+                Session["LoginName"] = au.RowKey;
                 if (au.TypeOfUser == (int)UserType.Consultant)
                     Session["LoginStatus"] = (int)LoginStatus.LoggedInAsConsultant;
                 else if (au.TypeOfUser == (int)UserType.Administrator)
                     Session["LoginStatus"] = (int)LoginStatus.LoggedInAsAdministrator;
-                else
-                    Session["LoginStatus"] = (int)LoginStatus.IllegalLoginType;
             }
             
             return View("LoginResult");

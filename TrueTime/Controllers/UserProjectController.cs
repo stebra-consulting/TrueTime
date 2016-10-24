@@ -88,25 +88,85 @@ namespace TrueTime.Controllers
             }
         }
 #endif
+#if false
         public ActionResult List()
         {
             InformationAccess ia = new InformationAccess();
             List<AzureUserProject> la;
             List<UserProject> lu = new List<UserProject>();
+            string consultant = string.Empty;
 
             ia.Initialize();
 
-            la = ia.GetAllProjects();
+            if (Session["LoginName"] != null)
+                consultant = (string)Session["LoginName"];
 
-            foreach(AzureUserProject a in la)
+            la = ia.GetUserProjects(consultant);
+
+            if (la != null)
             {
-                UserProject up = new UserProject();
+                foreach(AzureUserProject a in la)
+                {
+                    UserProject up = new UserProject();
 
-                up.fromAzure(a);
+                    up.fromAzure(a);
 
-                lu.Add(up);
+                    lu.Add(up);
+                }
             }
             return View(lu.OrderBy(p => p.PartitionKey));
+        }
+#endif
+        public ActionResult ConfigureProject()
+        {
+            UserProject2 u = new UserProject2();
+            InformationAccess ia = new InformationAccess();
+
+            ia.Initialize();
+
+            u.ConsultantProjects = ia.GetUserProjects((string)Session["LoginName"]);
+            u.AllProjects = ia.GetAllProjects();
+
+
+            return View(u);
+        }
+
+        /// <summary>
+        /// Removes a project from the consultant's set of projects
+        /// </summary>
+        [HttpPost]
+        public ActionResult LeftButton(UserProject2 up, string returnUrl)
+        {
+            InformationAccess ia = new InformationAccess();
+
+            ia.Initialize();
+
+            //ia.DeleteUserProject
+            //remove project from user, using up.PartionKey as project name and up.RowKey as consultant name
+            AzureUserProject aup = up.ConsultantProjects.Find(p => p.PartitionKey == up.SelectedProject);
+            up.ConsultantProjects.Remove(aup);
+            return View("ConfigureProject");
+        }
+
+        /// <summary>
+        /// Adds a project to the consultant's set of projects. The function should never remove
+        /// anything from up.AllProjects!
+        /// </summary>
+        [HttpPost]
+        public ActionResult RightButton(UserProject2 up, string returnUrl)
+        {
+            AzureUserProject aup = new AzureUserProject();
+
+            aup.PartitionKey = up.SelectedProject;
+            aup.RowKey = (string)Session["LoginName"];
+            aup.Deleted = false;
+            up.ConsultantProjects.Add(aup);
+            return View("ConfigureProject");
+        }
+
+        bool RemoveUserFromProject(string projectName, string userName)
+        {
+            return true;
         }
     }
 }

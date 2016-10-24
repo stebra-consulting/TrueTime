@@ -1,0 +1,71 @@
+﻿@model TrueTime.Models.UserProject2
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#avail").click(function () {
+            @ViewBag.SelectedProject = $("#avail").val();
+        });
+        $("#conf").click(function () {
+            @ViewBag.SelectedProject = $("#conf").val();
+        });
+    });
+</script>
+
+@{
+    ViewBag.Title = "Configure User <-> Project";
+    ViewBag.SelectedProject = string.Empty;
+}
+@{
+    InformationAccess ia = new InformationAccess();
+
+    ia.Initialize();
+
+    List<string> allProjectsList = new List<string>();
+    List<string> selectedProjectsList = new List<string>();
+
+    //transfer names of all projects to listbox
+    foreach (AzureProject a in Model.AllProjects)
+    {
+        allProjectsList.Add(a.RowKey);
+    }
+    //transfer names of projects that consultants work on to another listbox
+    foreach (AzureUserProject u in Model.ConsultantProjects)
+    {
+        selectedProjectsList.Add(u.PartitionKey);
+        allProjectsList.Remove(u.PartitionKey);
+    }
+
+}
+
+@using (Html.BeginForm("RightButton", "UserProject", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div style="float:left;">
+        <select id="avail" size="5">
+            @{foreach (string a in allProjectsList)
+                {
+                    <option value="@a">@a</option>
+                }
+            }
+        </select>
+    </div>
+    <div>
+        <input type="submit" id="rightButton" value="--&gt;" /><br />
+    </div>
+}
+@using (Html.BeginForm("LeftButton", "UserProject", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div style="float:left;">
+        <input type="submit" id="leftButton" value="&lt;--" />
+    </div>
+    <div style="float:left;">
+        <select id="conf" size="5">
+            @{foreach (string u in selectedProjectsList)
+                {
+                    <option value="@u">@u</option>
+                }
+            }
+        </select>
+    </div>
+}

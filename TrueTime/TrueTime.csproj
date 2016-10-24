@@ -165,6 +165,7 @@
     <Compile Include="Models\Project.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserProject.cs" />
+    <Compile Include="Models\UserProject2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +214,8 @@
     <Content Include="Views\Project\CreateProjectResult.cshtml" />
     <Content Include="Views\Project.cshtml" />
     <Content Include="Views\UserProject\List.cshtml" />
+    <Content Include="Views\UserProject\ConfigureProject0.cshtml" />
+    <Content Include="Views\UserProject\ConfigureProject.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

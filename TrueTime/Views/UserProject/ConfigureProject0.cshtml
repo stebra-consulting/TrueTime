@@ -1,0 +1,66 @@
+﻿@model InformationAccess
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+@{
+    ViewBag.Title = "Configure User <-> Project";
+}
+@{ 
+    List<AzureUserProject> lup = Model.GetUserProjects((string)Session["LoginName"]);
+    List<AzureProject> lap = Model.GetAllProjects();
+    List<string> allProjectsList = new List<string>();
+    List<string> selectedProjectsList = new List<string>();
+
+    foreach(AzureProject a in lap)
+    {
+        allProjectsList.Add(a.RowKey);
+    }
+    foreach (AzureUserProject u in lup)
+    {
+        selectedProjectsList.Add(u.PartitionKey);
+        allProjectsList.Remove(u.PartitionKey);
+    }
+
+}
+
+<script>
+    $(document).ready(function () {
+        $("#avail").click(function () {
+            alert($("#avail").val());
+        });
+    });
+</script>
+
+<table>
+    <tr>
+        <td>
+            <input type="text" id="search" />
+        </td>
+        <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>
+            <select id="avail" size="5">
+                @{foreach(string a in allProjectsList)
+                    {
+                        <option value="@a">@a</option>
+                    }
+                 }
+            </select>
+        </td>
+        <td>
+            <button id="rightButton" onclick="location.href='@Url.Action("RightButton", "UserProject")'">--&gt;</button><br />
+            <button id="leftButton" onclick="location.href='@Url.Action("LeftButton", "UserProject")'">&lt;--</button>
+        </td>
+        <td>
+            <select id="conf" size="5">
+                @{foreach (string u in selectedProjectsList)
+                    {
+                        <option value="@u">@u</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+</table>
+
