@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using TrueTime.Models;
@@ -9,12 +10,14 @@ namespace TrueTime.Controllers
 {
     public class UserProjectController : Controller
     {
-#if false
         // GET: UserProject
         public ActionResult Index()
         {
-            return View();
+            UserProject2 u = RefreshScreen();
+            
+            return View(u);
         }
+#if false
 
         // GET: UserProject/Details/5
         public ActionResult Details(int id)
@@ -117,7 +120,11 @@ namespace TrueTime.Controllers
             return View(lu.OrderBy(p => p.PartitionKey));
         }
 #endif
-        public ActionResult ConfigureProject()
+      
+        /// <summary>
+        /// Helper function that calculates the number of consultant projects and all projects
+        /// </summary>
+        UserProject2 RefreshScreen()
         {
             UserProject2 u = new UserProject2();
             InformationAccess ia = new InformationAccess();
@@ -127,25 +134,21 @@ namespace TrueTime.Controllers
             u.ConsultantProjects = ia.GetUserProjects((string)Session["LoginName"]);
             u.AllProjects = ia.GetAllProjects();
 
-
-            return View(u);
+            return u;
         }
 
         /// <summary>
         /// Removes a project from the consultant's set of projects
         /// </summary>
         [HttpPost]
-        public ActionResult LeftButton(UserProject2 up, string returnUrl)
+        public async Task<ActionResult> LeftButton(UserProject2 up, string returnUrl)
         {
             InformationAccess ia = new InformationAccess();
 
             ia.Initialize();
 
-            //ia.DeleteUserProject
-            //remove project from user, using up.PartionKey as project name and up.RowKey as consultant name
-            AzureUserProject aup = up.ConsultantProjects.Find(p => p.PartitionKey == up.SelectedProject);
-            up.ConsultantProjects.Remove(aup);
-            return View("ConfigureProject");
+            bool x = await ia.DeleteUserProject((string)Session["LoginName"], up.SelectedProject);
+            return View("Index");
         }
 
         /// <summary>
@@ -155,13 +158,16 @@ namespace TrueTime.Controllers
         [HttpPost]
         public ActionResult RightButton(UserProject2 up, string returnUrl)
         {
+            //add if not already exists
+            /*
             AzureUserProject aup = new AzureUserProject();
 
             aup.PartitionKey = up.SelectedProject;
             aup.RowKey = (string)Session["LoginName"];
             aup.Deleted = false;
             up.ConsultantProjects.Add(aup);
-            return View("ConfigureProject");
+            */
+            return View("Index");
         }
 
         bool RemoveUserFromProject(string projectName, string userName)

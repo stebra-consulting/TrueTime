@@ -43,6 +43,7 @@
 {
     <div style="float:left;">
         <select id="avail" size="5">
+
             @{foreach (string a in allProjectsList)
                 {
                     <option value="@a">@a</option>
@@ -50,15 +51,12 @@
             }
         </select>
     </div>
-    <div>
-        <input type="submit" id="rightButton" value="--&gt;" /><br />
-    </div>
-}
+    <div style="float:left;">
+        <input type="submit" id="rightButton" name="rightButton" value="--&rarr;" /><br />
+        <input type="submit" id="leftButton" name="leftButton" value="&larr;--" />
+    </div>}
 @using (Html.BeginForm("LeftButton", "UserProject", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
-    <div style="float:left;">
-        <input type="submit" id="leftButton" value="&lt;--" />
-    </div>
     <div style="float:left;">
         <select id="conf" size="5">
             @{foreach (string u in selectedProjectsList)

@@ -169,15 +169,30 @@ namespace TrueTime
             }            
         }
 
-        public bool DeleteProject(string projectName)
+        /// <summary>
+        /// Deletes a project from the table Projects
+        /// </summary>
+        public async Task<bool> DeleteProject(string projectName)
         {
-            return false;
-            /*
-            CloudTableClient table = _storageAccount.CreateCloudTableClient();
-            Project deleteEntity = GetProject(projectName);
-            TableOperation deleteOperation = TableOperation.Delete(deleteEntity);
-            await table.   ExecuteAsync(deleteOperation);
-            */
+            try
+            {
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_projectTableName);
+                //get the project row
+                var project = (from entity in table.CreateQuery<AzureProject>()
+                            where entity.PartitionKey == _projectPartitionKey && entity.RowKey == projectName
+                            select entity).First();
+
+                TableOperation deleteOperation = TableOperation.Delete(project);
+
+                TableResult result = await table.ExecuteAsync(deleteOperation);
+
+                return result.Result != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         ///////////////////////////////////////
@@ -313,23 +328,25 @@ namespace TrueTime
             }
         }
 
+
         /// <summary>
-        /// Given a consultant and a project,
-        /// the function deletes a row from UserProjects.
+        /// Given a list of AzureUserProject objects, it makes the necessary calls to the overloaded
+        /// version of this function, which interacts with Azure
         /// </summary>
-        /// <returns>true if it went well for all records that were searched, else false</returns>
-        public async Task<bool> DeleteUserProject(string consultant, string project)
+        /// <param name="projectList"></param>
+        /// <returns>true if the entire list of objects could be updated, else false. 
+        ///          If a single item in the list could not be updated, false is consequently returned.</returns>
+        public async Task<bool> InsertUpdateUserProjects(List<AzureUserProject> projectList)
         {
-            if (string.IsNullOrEmpty(consultant))
-                return false;
-            if (string.IsNullOrEmpty(project))
+            if (projectList == null)
                 return false;
 
-            List<AzureUserProject> userProjects = GetUserProjects(consultant, project, false);
-
-            foreach (AzureUserProject aup in userProjects)
-                aup.Deleted = true;
-            return await InsertUpdateUserProjects(userProjects);
+            foreach (AzureUserProject up in projectList)
+            {
+                if (!await InsertUpdateUserProject(up))
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -370,25 +387,36 @@ namespace TrueTime
         }
 
         /// <summary>
-        /// Given a list of AzureUserProject objects, it makes the necessary calls to the overloaded
-        /// version of this function, which interacts with Azure
+        /// Given a consultant and a project,
+        /// the function deletes a row from UserProjects.
         /// </summary>
-        /// <param name="projectList"></param>
-        /// <returns>true if the entire list of objects could be updated, else false. 
-        ///          If a single item in the list could not be updated, false is consequently returned.</returns>
-        public async Task<bool> InsertUpdateUserProjects(List<AzureUserProject> projectList)
+        public async Task<bool> DeleteUserProject(string consultant, string project)
         {
-            if (projectList == null)
+            if (string.IsNullOrEmpty(consultant))
+                return false;
+            if (string.IsNullOrEmpty(project))
                 return false;
 
-            foreach(AzureUserProject up in projectList)
+            try
             {
-                if (!await InsertUpdateUserProject(up))
-                    return false;
+                CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+                CloudTable table = tableClient.GetTableReference(_userProjectTableName);
+                //get the userproject row
+                var userproject = (from entity in table.CreateQuery<AzureUserProject>()
+                                   where entity.PartitionKey == project && entity.RowKey == consultant
+                                   select entity).First();
+
+                TableOperation deleteOperation = TableOperation.Delete(userproject);
+
+                TableResult result = await table.ExecuteAsync(deleteOperation);
+
+                return result.Result != null;
             }
-            return true;
+            catch (Exception)
+            {
+                return false;
+            }
         }
-        
 
         ///////////////////////////////////////
         /// REPORT FUNCTIONS
