@@ -148,7 +148,7 @@ namespace TrueTime.Controllers
             ia.Initialize();
 
             bool x = await ia.DeleteUserProject((string)Session["LoginName"], up.SelectedProject);
-            return View("Index");
+            return Index();
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace TrueTime.Controllers
             aup.Deleted = false;
             up.ConsultantProjects.Add(aup);
             */
-            return View("Index");
+            return Index();
         }
 
         bool RemoveUserFromProject(string projectName, string userName)

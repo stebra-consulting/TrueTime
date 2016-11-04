@@ -162,8 +162,11 @@ namespace TrueTime
         /// <summary>
         /// Returns the number of working hours, given a DateTime
         /// </summary>
-        double GetWorkingHours(DateTime aDate)
+        public double GetWorkingHours(DateTime aDate)
         {
+            if (aDate.DayOfWeek == DayOfWeek.Saturday || aDate.DayOfWeek == DayOfWeek.Sunday)
+                return 0.0; // no expected work during the weekends
+
             return IsHoliday(aDate.Date) ? 0 : IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
         }
 
@@ -176,7 +179,7 @@ namespace TrueTime
         }
 
         /// <summary>
-        /// Answers true if the following day is a holiday, else false
+        /// Answers true if the following day of the supplied date is a holiday, else false
         /// </summary>
         public bool IsDayBeforeHoliday(DateTime aDate)
         {
@@ -209,6 +212,7 @@ namespace TrueTime
             else
                 return true;
         }
+        
         /// <summary>
         /// Helper function that adds a new clean DateTime object (only Date part is set) to the list of holidays
         /// </summary>
@@ -225,7 +229,7 @@ namespace TrueTime
         /// Calculates the Midsummer day
         /// </summary>
         /// <remarks>The Midsummer day is the Saturday between the 20th and the 26th of June</remarks>
-        DateTime CalculateMidsummerDay(int year)
+        public DateTime CalculateMidsummerDay(int year)
         {
             DateTime testdate = new DateTime(year, 6, 20);
             DateTime maxdate = new DateTime(year, 6, 26);
@@ -248,7 +252,7 @@ namespace TrueTime
         /// Calculates the All Saints Day ("Alla helgons dag")
         /// </summary>
         /// <remarks>The All Saints Day is the Saturday between the 30th of October and the 5th of November</remarks>
-         DateTime CalculateAllSaintsDay(int year)
+        public DateTime CalculateAllSaintsDay(int year)
         {
             DateTime testdate = new DateTime(year, 10, 30);
             DateTime maxdate = new DateTime(year, 11, 5);
@@ -271,7 +275,7 @@ namespace TrueTime
         /// <summary>
         /// Calculates the Easter Day ("Påskdagen")
         /// </summary>
-         DateTime CalculateEasterDay(int year)
+        public DateTime CalculateEasterDay(int year)
         {
             /*
                      Code snippet from English version of Wikipedia at September 16, 2016.
@@ -323,7 +327,7 @@ namespace TrueTime
         /// <summary>
         /// Calculates the Ascension Day ("Kristi Himmelfärdsdag")
         /// </summary>
-         DateTime CalculateAscensionDay(int year)
+        public DateTime CalculateAscensionDay(int year)
         {
             DateTime result = CalculateEasterDay(year);
 
@@ -340,7 +344,7 @@ namespace TrueTime
         /// <summary>
         /// Calculates the Whitsunday ("Pingstdagen")
         /// </summary>
-         DateTime CalculateWhitsunday(int year)
+        public DateTime CalculateWhitsunday(int year)
         {
             DateTime result = CalculateEasterDay(year);
 
@@ -352,7 +356,7 @@ namespace TrueTime
         /// <summary>
         /// Calculates Whitsun Eve ("Pingstafton") 
         /// </summary>
-         DateTime CalculateWhitsunEve(int year)
+        public DateTime CalculateWhitsunEve(int year)
         {
             DateTime result = CalculateWhitsunday(year);
 
