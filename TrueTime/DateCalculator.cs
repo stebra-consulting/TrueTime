@@ -13,6 +13,8 @@ namespace TrueTime
     {
         //All holidays that are valid for Sweden
         List<DateTime> _holidays = new List<DateTime>();
+        //holds the year parameter given at construction time
+        public int Year { get; set; }
 
         /// <summary>
         /// Property for accessing the holidays that have been stored
@@ -35,6 +37,7 @@ namespace TrueTime
         /// </summary>
         public DateCalculator(int year)
         {
+            this.Year = year;
             CalculateHolidays(year);
         }
 
@@ -167,7 +170,18 @@ namespace TrueTime
             if (aDate.DayOfWeek == DayOfWeek.Saturday || aDate.DayOfWeek == DayOfWeek.Sunday)
                 return 0.0; // no expected work during the weekends
 
-            return IsHoliday(aDate.Date) ? 0 : IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
+            DateTime midsummerEve = CalculateMidsummerDay(aDate.Year).AddDays(-1);
+            DateTime christmasEve = new DateTime(aDate.Year, 12, 24);
+            DateTime newYearsEve = new DateTime(aDate.Year, 12, 31);
+
+            // special cases
+            if (IsDayBeforeHoliday(midsummerEve) ||
+                IsDayBeforeHoliday(christmasEve) ||
+                IsDayBeforeHoliday(newYearsEve))
+            {
+                return 8.0;
+            }
+            return IsHoliday(aDate.Date) ? 0.0 : IsDayBeforeHoliday(aDate.Date) ? 5.0 : 8.0;
         }
 
         /// <summary>
